@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<title>#{msg['welcome']}</title>
+	<style>
+body {
+	margin: 0;
+}
+
+#navbar button {
+	border: none;
+}
+
+#content {
+	padding: 1em;
+}
+
+#content .ui-panel {
+	margin: 1em;
+}
+</style>
+</h:head>
+
+<f:event listener="#{loginController.checkLogin}" type="preRenderView" />
+
+<h:body>
+	<p:growl id="accountErrMessages" showDetail="true"
+		skipDetailIfEqualsSummary="true" />
+
+	<h:form id="navbar">
+		<p:toolbar>
+			<f:facet name="left">
+				<p:commandButton value="#{msg.home}"
+					action="#{transactionsController.homeButton}" />
+				<p:commandButton value="#{msg.back}"
+					action="#{transactionsController.backButton}" />
+			</f:facet>
+
+			<f:facet name="right">
+				<p:commandButton value="#{msg.logout}"
+					action="#{loginController.logout}" />
+			</f:facet>
+		</p:toolbar>
+	</h:form>
+
+	<div id="content">
+		<p:panel header="#{msg['transaction.add']}">
+			<h:form>
+				<h:panelGrid columns="2" cellpadding="2">
+					<h:outputLabel for="typeinput"
+						value="#{msg['transaction.type.deposit']}" />
+					<p:selectBooleanCheckbox id="typeinput"
+						value="#{transactionsController.transactionBean.deposit}" />
+
+					<h:outputLabel for="amountinput"
+						value="#{msg['transaction.amount']}" />
+					<p:inputNumber id="amountinput" placeholder="0.00"
+						decimalPlaces="2"
+						value="#{transactionsController.transactionBean.amount}"
+						required="true"/>
+
+					<h:outputLabel for="dateinput"
+						value="#{msg['transaction.creationDate']}" />
+					<p:datePicker id="dateinput" pattern="yyyy-MM-dd"
+						value="#{transactionsController.currentDate}" required="true">
+					</p:datePicker>
+
+					<p:commandButton update="transactionErrMessages"
+						action="#{transactionsController.addTransaction}"
+						value="#{msg['transaction.add.button']}" validateClient="true"
+						ajax="false" />
+				</h:panelGrid>
+			</h:form>
+		</p:panel>
+
+		<p:panel id="movements" header="#{msg['transaction.list']}">
+			<h:form id="transactions">
+				<p:dataTable id="transactionlist" var="transaction"
+					value="#{transactionsController.transactions}"
+					style="text-align: center">
+					<p:column headerText="#{msg['transaction.type']}">
+						<h:outputText value="#{transaction.transactionType}" />
+					</p:column>
+					<p:column headerText="#{msg['transaction.amount']}">
+						<h:outputText value="#{transaction.amount}" />
+					</p:column>
+					<p:column headerText="#{msg['transaction.creationDate']}">
+						<h:outputText id="date" value="#{transaction.dateIns}"/>
+					</p:column>
+				</p:dataTable>
+			</h:form>
+		</p:panel>
+	</div>
+</h:body>
+</html>

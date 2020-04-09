@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<title>#{msg['welcome']}</title>
+	<style>
+body {
+	margin: 0;
+}
+
+#navbar button {
+	border: none;
+}
+
+#content {
+	padding: 1em;
+}
+
+#content .ui-panel {
+	margin: 1em;
+}
+.ui-datatable{
+	text-align: center;
+}
+</style>
+</h:head>
+
+<f:event listener="#{loginController.checkLogin}" type="preRenderView" />
+
+<h:body>
+	<h:form id="navbar">
+		<p:toolbar>
+			<f:facet name="left">
+				<p:commandButton value="#{msg.home}" update="clientErrMessages"
+					action="#{welcomeController.homeButton}" />
+			</f:facet>
+
+			<f:facet name="right">
+				<p:commandButton value="#{msg.logout}" update="clientErrMessages"
+					action="#{loginController.logout}" />
+			</f:facet>
+		</p:toolbar>
+	</h:form>
+
+	<div id="content">
+		<p:messages id="clientErrMessages">
+			<p:autoUpdate />
+		</p:messages>
+
+		<p:panel header="#{msg['client.add']}">
+			<h:form>
+				<h:panelGrid columns="2" cellpadding="2">
+					<p:outputLabel for="nameinput" value="#{msg.name}" />
+					<p:inputText id="nameinput"
+						value="#{welcomeController.clientBean.name}" required="true"
+						maxlength="20">
+						<f:validateLength minimum="2"></f:validateLength>
+					</p:inputText>
+
+					<p:outputLabel for="surnameinput" value="#{msg.surname}" />
+					<p:inputText id="surnameinput"
+						value="#{welcomeController.clientBean.surname}" required="true"
+						maxlength="20">
+						<f:validateLength minimum="2"></f:validateLength>
+					</p:inputText>
+
+					<p:outputLabel for="codiceinput" value="#{msg.codice}" />
+					<p:inputText id="codiceinput"
+						value="#{welcomeController.clientBean.codiceFiscale}"
+						required="true" maxlength="16">
+						<f:validateLength minimum="16"></f:validateLength>
+					</p:inputText>
+					<p:commandButton update="clientErrMessages"
+						action="#{welcomeController.registerClient}"
+						value="#{msg['login.register']}" validateClient="true"
+						ajax="false" />
+				</h:panelGrid>
+			</h:form>
+		</p:panel>
+
+		<p:panel header="#{msg['client.list']}">
+			<p:dataTable id="clienstList" var="client"
+				value="#{welcomeController.clients}" paginator="true"
+				paginatorAlwaysVisible="false" rows="10" selectionMode="single"
+				selection="#{welcomeController.selectedClientBean}"
+				rowKey="#{client.codiceFiscale}">
+				<p:ajax event="rowSelect" listener="#{welcomeController.onClientSelect}">
+					<f:setPropertyActionListener value="#{client}"
+						target="#{welcomeController.selectedClientBean}" />
+				</p:ajax>
+				<p:column headerText="#{msg.name}">
+					<h:outputText value="#{client.name}" />
+				</p:column>
+				<p:column headerText="#{msg.surname}">
+					<h:outputText value="#{client.surname}" />
+				</p:column>
+				<p:column headerText="#{msg.codice}">
+					<h:outputText value="#{client.codiceFiscale}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</div>
+</h:body>
+</html>

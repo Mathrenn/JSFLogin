@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<title>#{msg['welcome']}</title>
+	<style>
+	body{
+		margin: 0;
+	}
+.ui-grid {
+	border: none;
+}
+
+#navbar button{
+	border: none;
+}
+#content {
+	padding: 1em;
+}
+
+#content .ui-panel {
+	margin: 1em;
+}
+</style>
+</h:head>
+
+<f:event listener="#{loginController.checkLogin}" type="preRenderView" />
+
+<h:body>
+	<p:growl id="accountErrMessages" showDetail="true"
+		skipDetailIfEqualsSummary="true" />
+
+	<h:form id="navbar">
+		<p:toolbar>
+			<f:facet name="left">
+				<p:commandButton value="#{msg.home}"
+					action="#{clientController.homeButton}" />
+				<p:commandButton value="#{msg.back}"
+					action="#{clientController.backButton}" />
+			</f:facet>
+
+			<f:facet name="right">
+				<p:commandButton value="#{msg.logout}"
+					action="#{loginController.logout}" />
+			</f:facet>
+		</p:toolbar>
+	</h:form>
+
+	<div id="content">
+	<p:panel header="#{msg['client.info']}">
+		<h:form>
+			<h:panelGrid columns="2" cellpadding="2">
+				<h:outputLabel for="nameoutput" value="#{msg.name} "
+					style="font-weight: bold" />
+				<h:outputText id="nameoutput"
+					value="#{welcomeController.selectedClientBean.name}"></h:outputText>
+
+				<h:outputLabel for="surnameoutput" value="#{msg.surname} "
+					style="font-weight: bold" />
+				<h:outputText id="surnameoutput"
+					value="#{welcomeController.selectedClientBean.surname}"></h:outputText>
+
+				<h:outputLabel for="codiceoutput" value="#{msg.codice} "
+					style="font-weight: bold" />
+				<h:outputText id="codiceoutput"
+					value="#{welcomeController.selectedClientBean.codiceFiscale}"></h:outputText>
+			</h:panelGrid>
+			<p:commandButton update="accountErrMessages"
+				action="#{clientController.openDefaultAccount}"
+				value="#{msg['account.add']}" validateClient="true" ajax="false" />
+		</h:form>
+	</p:panel>
+
+	<p:panel id="accounts" header="#{msg['account.list']}">
+		<h:form>
+			<p:dataTable id="contilist" var="account" 
+				value="#{clientController.accounts}" paginator="true"
+				paginatorAlwaysVisible="false" rows="10">
+				<p:column headerText="#{msg['account.balance']}"
+					style="text-align: center">
+					<h:outputText value="#{account.balance}">
+						<f:convertNumber type="currency"/>
+					</h:outputText>
+				</p:column>
+				<p:column headerText="#{msg['account.creationDate']}"
+					style="text-align: center">
+					<h:outputText value="#{account.dateIns}" />
+				</p:column>
+				<p:column headerText="#{msg['account.operations']}" colspan="2"
+					style="text-align: center">
+					<p:panelGrid id="buttonrow" columns="2" layout="grid">
+						<p:commandButton action="transactions?faces-redirect=true"
+							value="#{msg['movement.list.button']}">
+							<f:setPropertyActionListener value="#{account}"
+								target="#{clientController.selectedAccountBean}" />
+						</p:commandButton>
+						<p:commandButton action="balance?faces-redirect=true"
+							value="#{msg['balance.check.button']}">
+							<f:setPropertyActionListener value="#{account}"
+								target="#{clientController.selectedAccountBean}" />
+						</p:commandButton>
+					</p:panelGrid>
+				</p:column>
+			</p:dataTable>
+		</h:form>
+	</p:panel>
+	</div>
+</h:body>
+</html>
