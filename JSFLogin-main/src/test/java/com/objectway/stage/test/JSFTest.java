@@ -116,7 +116,7 @@ public class JSFTest extends AbstractTransactionalJUnit4SpringContextTests{
 		AccountViewBean ccvb = new AccountViewBean(cvb, new BigDecimal(0.0), LocalDate.now());
 		AccountServiceBean ccsb = contoCorrenteConverter.viewToService(ccvb);
 
-		AccountServiceBean conto = accountService.addDefaultAccount(client);
+		AccountServiceBean conto = accountService.addDefaultAccount(client, LocalDate.now());
 		ClientServiceBean cliente = conto.getClient();
 		assertTrue(cliente.getCodiceFiscale().equals(ccsb.getClient().getCodiceFiscale()));
 		assertTrue(cliente.getUser().getUsername().equals(ccsb.getClient().getUser().getUsername()));

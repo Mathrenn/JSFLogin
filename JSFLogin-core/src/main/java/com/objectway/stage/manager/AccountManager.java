@@ -74,13 +74,13 @@ public class AccountManager {
 		return account;
 	}
 	
-	public AccountServiceBean addDefault(ClientServiceBean client) {
+	public AccountServiceBean addDefault(ClientServiceBean client, LocalDate date) {
 		logger.info("Initialized method AccountManager.addDefault()");
 		AccountServiceBean account = new AccountServiceBean();
 		try {
 			AccountEntity ae = new AccountEntity(clientRepository.findByCodiceFiscale(client.getCodiceFiscale()), 
 					BigDecimal.valueOf(0.0), 
-					LocalDate.now());
+					date);
 			logger.debug(ae.toString());
 			accountRepository.register(ae);
 			account = accountConverter.entityToService(ae);

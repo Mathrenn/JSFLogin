@@ -51,8 +51,8 @@ public class AccountService{
 		return accountManager.findById(id);
 	}
 	
-	public AccountServiceBean addDefaultAccount(ClientServiceBean client) {
-		return accountManager.addDefault(client);
+	public AccountServiceBean addDefaultAccount(ClientServiceBean client, LocalDate date) {
+		return accountManager.addDefault(client, date);
 	}
 
 	public AccountServiceBean addTransaction(TransactionServiceBean transaction) {

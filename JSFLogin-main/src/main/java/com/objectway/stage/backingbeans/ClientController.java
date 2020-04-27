@@ -1,7 +1,9 @@
 package com.objectway.stage.backingbeans;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -32,8 +34,10 @@ public class ClientController {
 	private static final ServiceViewConverter<ClientServiceBean, ClientViewBean> clientViewConverter = new ClientViewConverter();
 	private static final ServiceViewConverter<AccountServiceBean, AccountViewBean> accountViewConverter = new AccountViewConverter();
 
+	private Date selectedDate;
 	private AccountViewBean selectedAccountBean;
 	private List<AccountViewBean> accounts;
+	
 	
 	@ManagedProperty("#{accountService}")
 	private AccountService accountService;
@@ -42,6 +46,7 @@ public class ClientController {
 
 	public ClientController() {
 		super();
+		selectedDate = new Date();
 		selectedAccountBean = new AccountViewBean();
 		accounts = new ArrayList<>();  
 	}
@@ -74,7 +79,6 @@ public class ClientController {
 		this.accountService = accountService;
 	}
 	
-	// end of getters and setters
 	public WelcomeController getWelcomeController() {
 		return welcomeController;
 	}
@@ -91,10 +95,20 @@ public class ClientController {
 		welcomeController.setSelectedClientBean(selectedClientBean);
 	}
 
+	public Date getSelectedDate() {
+		return selectedDate;
+	}
+
+	public void setSelectedDate(Date selectedDate) {
+		this.selectedDate = selectedDate;
+	}
+	// end of getters and setters
+
 	public String openDefaultAccount() {
 		logger.info("Started ClientController.openDefaultAccount()");
 		AccountViewBean conto = accountViewConverter.serviceToView(
-				accountService.addDefaultAccount(clientViewConverter.viewToService(getSelectedClientBean())));
+				accountService.addDefaultAccount(clientViewConverter.viewToService(getSelectedClientBean()), 
+						selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
 		if(conto != null && conto.getClient().equals(getSelectedClientBean())) {
 			updateAccounts();
 			FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, 

@@ -10,16 +10,18 @@
 <h:head>
 	<title>#{msg['welcome']}</title>
 	<style>
-	body{
-		margin: 0;
-	}
+body {
+	margin: 0;
+}
+
 .ui-grid {
 	border: none;
 }
 
-#navbar button{
+#navbar button {
 	border: none;
 }
+
 #content {
 	padding: 1em;
 }
@@ -53,8 +55,7 @@
 	</h:form>
 
 	<div id="content">
-	<p:panel header="#{msg['client.info']}">
-		<h:form>
+		<p:panel header="#{msg['client.info']}">
 			<h:panelGrid columns="2" cellpadding="2">
 				<h:outputLabel for="nameoutput" value="#{msg.name} "
 					style="font-weight: bold" />
@@ -71,45 +72,55 @@
 				<h:outputText id="codiceoutput"
 					value="#{welcomeController.selectedClientBean.codiceFiscale}"></h:outputText>
 			</h:panelGrid>
-			<p:commandButton update="accountErrMessages"
-				action="#{clientController.openDefaultAccount}"
-				value="#{msg['account.add']}" validateClient="true" ajax="false" />
-		</h:form>
-	</p:panel>
+		</p:panel>
 
-	<p:panel id="accounts" header="#{msg['account.list']}">
-		<h:form>
-			<p:dataTable id="contilist" var="account" 
-				value="#{clientController.accounts}" paginator="true"
-				paginatorAlwaysVisible="false" rows="10">
-				<p:column headerText="#{msg['account.balance']}"
-					style="text-align: center">
-					<h:outputText value="#{account.balance}">
-						<f:convertNumber type="currency"/>
-					</h:outputText>
-				</p:column>
-				<p:column headerText="#{msg['account.creationDate']}"
-					style="text-align: center">
-					<h:outputText value="#{account.dateIns}" />
-				</p:column>
-				<p:column headerText="#{msg['account.operations']}" colspan="2"
-					style="text-align: center">
-					<p:panelGrid id="buttonrow" columns="2" layout="grid">
-						<p:commandButton action="transactions?faces-redirect=true"
-							value="#{msg['movement.list.button']}">
-							<f:setPropertyActionListener value="#{account}"
-								target="#{clientController.selectedAccountBean}" />
-						</p:commandButton>
-						<p:commandButton action="balance?faces-redirect=true"
-							value="#{msg['balance.check.button']}">
-							<f:setPropertyActionListener value="#{account}"
-								target="#{clientController.selectedAccountBean}" />
-						</p:commandButton>
-					</p:panelGrid>
-				</p:column>
-			</p:dataTable>
-		</h:form>
-	</p:panel>
+		<p:panel header="#{msg['account.add']}">
+			<h:form>
+				<h:outputLabel for="dateinput"
+					value="#{msg['account.creationDate']}" />
+				<p:datePicker id="dateinput" pattern="yyyy-MM-dd"
+					value="#{clientController.selectedDate}" required="true">
+				</p:datePicker>
+
+				<p:commandButton update="accountErrMessages"
+					action="#{clientController.openDefaultAccount}"
+					value="#{msg['account.add']}" validateClient="true" ajax="false" />
+			</h:form>
+		</p:panel>
+
+		<p:panel id="accounts" header="#{msg['account.list']}">
+			<h:form>
+				<p:dataTable id="contilist" var="account"
+					value="#{clientController.accounts}" paginator="true"
+					paginatorAlwaysVisible="false" rows="10">
+					<p:column headerText="#{msg['account.balance']}"
+						style="text-align: center">
+						<h:outputText value="#{account.balance}">
+							<f:convertNumber type="currency" />
+						</h:outputText>
+					</p:column>
+					<p:column headerText="#{msg['account.creationDate']}"
+						style="text-align: center">
+						<h:outputText value="#{account.dateIns}" />
+					</p:column>
+					<p:column headerText="#{msg['account.operations']}" colspan="2"
+						style="text-align: center">
+						<p:panelGrid id="buttonrow" columns="2" layout="grid">
+							<p:commandButton action="transactions?faces-redirect=true"
+								value="#{msg['movement.list.button']}">
+								<f:setPropertyActionListener value="#{account}"
+									target="#{clientController.selectedAccountBean}" />
+							</p:commandButton>
+							<p:commandButton action="balance?faces-redirect=true"
+								value="#{msg['balance.check.button']}">
+								<f:setPropertyActionListener value="#{account}"
+									target="#{clientController.selectedAccountBean}" />
+							</p:commandButton>
+						</p:panelGrid>
+					</p:column>
+				</p:dataTable>
+			</h:form>
+		</p:panel>
 	</div>
 </h:body>
 </html>
