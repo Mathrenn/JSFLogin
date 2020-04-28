@@ -24,6 +24,8 @@ hs_err_pid*
 
 # Maven and build directories
 .classpath
+.project
 .settings/
-target/
+.metadata/
 bin/
+target/
