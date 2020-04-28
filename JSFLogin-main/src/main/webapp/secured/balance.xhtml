@@ -72,11 +72,12 @@ html, body {
 						<h:outputLabel for="dateinput" style="font-weight: bold"
 							value="#{msg['transaction.creationDate']}" />
 						<p:datePicker id="dateinput" pattern="dd-MM-yyyy"
-							value="#{balanceController.selectedDate}" required="true">
+							value="#{balanceController.selectedDate}" required="true"
+							mindate="#{balanceController.selectedAccountBean.dateIns}">
 						</p:datePicker>
 
 						<p:commandButton update="balanceErrMessages"
-							action="#{balanceController.getBalanceToDate}"
+							action="#{balanceController.updateValuesToDate}"
 							value="#{msg['balance.check.button']}" validateClient="true"
 							ajax="false" />
 					</h:panelGrid>
@@ -86,7 +87,22 @@ html, body {
 					<h:outputLabel for="balanceText" style="font-weight: bold"
 						value="#{msg['account.balance.toDate']}" />
 					<h:outputText id="balanceText"
-						value="#{balanceController.balanceToDate}" />
+						value="#{balanceController.balance}" />
+					
+					<h:outputLabel for="depositText" style="font-weight: bold"
+						value="#{msg['account.balance.toDate']}" />
+					<h:outputText id="depositText"
+						value="#{balanceController.deposits}" />
+					
+					<h:outputLabel for="withdrawalText" style="font-weight: bold"
+						value="#{msg['account.balance.toDate']}" />
+					<h:outputText id="withdrawalText"
+						value="#{balanceController.withdrawals}" />
+					
+					<h:outputLabel for="meanBalanceText" style="font-weight: bold"
+						value="#{msg['account.balance.toDate']}" />
+					<h:outputText id="meanBalanceText"
+						value="#{balanceController.meanBalance}" />
 				</h:panelGrid>
 			</p:panel>
 		</h:form>

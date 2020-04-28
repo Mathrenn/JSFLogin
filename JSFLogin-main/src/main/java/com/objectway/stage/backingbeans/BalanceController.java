@@ -1,6 +1,7 @@
 package com.objectway.stage.backingbeans;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
@@ -30,9 +31,18 @@ public class BalanceController {
 	@ManagedProperty("#{clientController.selectedAccountBean}")
 	private AccountViewBean selectedAccountBean;
 
+	private BigDecimal balance;
+	private int deposits;
+	private int withdrawals;
+	private BigDecimal meanBalance;
+	
 	public BalanceController() {
 		super();
 		selectedDate = new Date();
+		balance = new BigDecimal(0.0);
+		deposits = 0;
+		withdrawals = 0;
+		meanBalance = new BigDecimal(0.0);;
 	}
 
 	// Getters and setters
@@ -59,17 +69,71 @@ public class BalanceController {
 	public void setSelectedAccountBean(AccountViewBean selectedAccountBean) {
 		this.selectedAccountBean = selectedAccountBean;
 	}
+
+	public BigDecimal getBalance() {
+		return balance;
+	}
+
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
+
+	public int getDeposits() {
+		return deposits;
+	}
+
+	public void setDeposits(int deposits) {
+		this.deposits = deposits;
+	}
+
+	public int getWithdrawals() {
+		return withdrawals;
+	}
+
+	public void setWithdrawals(int withdrawals) {
+		this.withdrawals = withdrawals;
+	}
+
+	public BigDecimal getMeanBalance() {
+		return meanBalance;
+	}
+
+	public void setMeanBalance(BigDecimal meanBalance) {
+		this.meanBalance = meanBalance;
+	}
 	// End of getters and setters
 
-	// getter fittizio, usato in balance.xhtml
-	public BigDecimal getBalanceToDate() {
-		logger.info("Started BalanceController.getSaldoToDate()");
+	public void updateValuesToDate() {
+		logger.info("Started BalanceController.updateValuesToDate()");
+		setBalance(getUpdatedBalance(selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+		setDeposits(0);
+		setWithdrawals(0);
+		setMeanBalance(new BigDecimal(0.0));
+	}
+	
+	public BigDecimal getUpdatedBalance(LocalDate date) {
+		logger.info("Started BalanceController.getUpdatedBalance()");
 		return accountService.getBalanceToDate(
 				accountViewConverter.viewToService(selectedAccountBean), 
-				selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()).setScale(2);
+				date).setScale(2);
 	}
-	// setter fittizio
-	public void setBalanceToDate() {}
+
+	public BigDecimal getUpdatedMeanBalance(LocalDate date) {
+		logger.info("Started BalanceController.getUpdatedMeanBalance()");
+		return accountService.getBalanceToDate(
+				accountViewConverter.viewToService(selectedAccountBean), 
+				date).setScale(2);
+	}
+
+	public Integer getUpdatedDeposits(LocalDate date) {
+		logger.info("Started BalanceController.getUpdatedDeposits()");
+		return 0;
+	}
+
+	public Integer getUpdatedWithdrawals(LocalDate date) {
+		logger.info("Started BalanceController.getUpdatedDeposits()");
+		return 0;
+	}
 
 	public String homeButton() {
 		selectedDate = new Date();

@@ -70,22 +70,22 @@ public class AccountServiceBean {
 	public void setTransactionList(Set<TransactionServiceBean> transactionList) {
 		this.transactionList = transactionList;
 	}
-	
+
 	public void addTransaction(TransactionServiceBean transaction) {
 		transactionList.add(transaction);
 	}
 
 	public BigDecimal getBalanceToDate(LocalDate date) {
 		BigDecimal saldo = new BigDecimal(0.0);
-			for(TransactionServiceBean m: getTransactionList()) {
-				if(!m.getDateIns().isAfter(date)) {
-					if(m.isDeposit()) {
-						saldo = saldo.add(m.getAmount());
-					} else {
-						saldo = saldo.subtract(m.getAmount());
-					}
+		for(TransactionServiceBean m: getTransactionList()) {
+			if(!m.getDateIns().isAfter(date)) {
+				if(m.isDeposit()) {
+					saldo = saldo.add(m.getAmount());
+				} else {
+					saldo = saldo.subtract(m.getAmount());
 				}
 			}
+		}
 		return saldo;
 	}
 
@@ -93,12 +93,28 @@ public class AccountServiceBean {
 		return this.id == other.getId() && 
 				this.client.equals(other.getClient());
 	}
-	
+
 	public String toString() {
 		return "Conto "+ getId() 
 		+ "\nData Apertura: "+getDateIns()
 		+ "\nSaldo: "+getBalance()
 		+ "\nCliente:\n"+getClient()
 		+ "\nLista Movimenti: "+getTransactionList();
+	}
+
+	public int getDepositCount(LocalDate date) {
+		return (int) getTransactionList()
+				.stream()
+				.filter(t -> !t.getDateIns().isAfter(date))
+				.filter(t -> t.isDeposit())
+				.count();
+	}
+
+	public int getWithdrawalCount(LocalDate date) {
+		return (int) getTransactionList()
+				.stream()
+				.filter(t -> !t.getDateIns().isAfter(date))
+				.filter(t -> !t.isDeposit())
+				.count();
 	}
 }

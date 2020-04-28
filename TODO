@@ -5,5 +5,9 @@ Nella pagina di creazione del conto corrente deve essere richiesta anche una dat
 
 Nella pagina in cui mostrate il saldo del conto corrente alla data inserite anche le seguenti informazioni:
 	[]   Totale versamenti alla data
+	 |- [v] tested
 	[]   Totale prelievi alla data
+	 |- [v] tested
 	[]   Giacenza media dalla data di apertura del conto alla data di analisi.
+	 |- [] tested
+	

@@ -128,11 +128,18 @@ public class JSFTest extends AbstractTransactionalJUnit4SpringContextTests{
 		ccsb.setTransactionList(accountService.findAllTransactionsByAccount(ccsb).stream().collect(Collectors.toSet()));
 		assertFalse(ccsb.getTransactionList().isEmpty());
 		assertTrue(ccsb.getBalanceToDate(LocalDate.now()).compareTo(BigDecimal.valueOf(100.0))==0);
-
+		assertTrue(ccsb.getDepositCount(LocalDate.now())==1);
+		assertTrue(ccsb.getWithdrawalCount(LocalDate.now())==0);
+		
 		ccsb = accountService.addTransaction(new TransactionServiceBean(false, new BigDecimal(50.0), conto));
 		ccsb = accountService.addTransaction(new TransactionServiceBean(false, new BigDecimal(150.0), conto));
+		ccsb.setTransactionList(accountService.findAllTransactionsByAccount(ccsb).stream().collect(Collectors.toSet()));
 		assertTrue(accountService.findAllTransactionsByAccount(ccsb).size()==3);
 		assertTrue(accountService.getBalanceToDate(ccsb, LocalDate.now()).compareTo(BigDecimal.valueOf(-100.0))==0);
 		assertTrue(accountService.getBalanceToDate(ccsb, LocalDate.now().plusDays(1)).compareTo(BigDecimal.valueOf(-100.0))==0);
+
+		assertTrue(ccsb.getDepositCount(LocalDate.now())==1);
+		assertTrue(ccsb.getWithdrawalCount(LocalDate.now())==2);
+//		assertTrue(accountService.getMeanBalanceToDate(ccsb, LocalDate.now()).compareTo(BigDecimal.valueOf(-100.0))==0);
 	}
 }
