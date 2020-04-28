@@ -69,7 +69,8 @@ body {
 					<h:outputLabel for="dateinput"
 						value="#{msg['transaction.creationDate']}" />
 					<p:datePicker id="dateinput" pattern="yyyy-MM-dd"
-						value="#{transactionsController.currentDate}" required="true">
+						value="#{transactionsController.currentDate}" required="true"
+						mindate="#{transactionsController.minDate}">
 					</p:datePicker>
 
 					<p:commandButton update="transactionErrMessages"

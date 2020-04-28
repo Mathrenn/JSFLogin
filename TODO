@@ -1,7 +1,7 @@
 Nella pagina di creazione del conto corrente deve essere richiesta anche una data di apertura del conto (può essere nel passato)
 	[v] add ability to specify creation date when opening an account (can be in the past)
-	[] transaction date must not precede account creation date
-	 |--> [] print error growl if transaction date is invalid
+	[v] transaction date must not precede account creation date
+	 |--> [v] print error growl if transaction date is invalid
 
 Nella pagina in cui mostrate il saldo del conto corrente alla data inserite anche le seguenti informazioni:
 	[]   Totale versamenti alla data

@@ -55,6 +55,7 @@ public class TransactionsController {
 		this.transactionBean = transactionBean;
 	}
 
+	// sort of a wrapper/converter around transactonBean.dateIns (LocalDate) and Date
 	public Date getCurrentDate() {
 		return Date.from(LocalDate.now().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
@@ -63,6 +64,11 @@ public class TransactionsController {
 		transactionBean.setDateIns(currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 	}
 
+	// 'false' getter to convert from LocalDate to Date, used in transactions.xhtml
+	public Date getMinDate() {
+		return Date.from(selectedAccountBean.getDateIns().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+	
 	public List<TransactionViewBean> getTransactions() {
 		if(transactions!=null) {
 			updateTransactions();
@@ -103,22 +109,32 @@ public class TransactionsController {
 	public String addTransaction() {
 		logger.info("Started TransactionsController.addMovement()");
 		transactionBean.setAccount(selectedAccountBean);
-		AccountViewBean conto = accountViewConverter.serviceToView(
-				accountService.addTransaction(transactionViewConverter.viewToService(transactionBean)));
-		if(conto != null && conto.getClient().equals(selectedAccountBean.getClient())) {
-			updateTransactions();
-			transactionBean = new TransactionViewBean();
-			FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, 
-					messages.getString("transaction.addsuccessful.message"),
-					messages.getString("transaction.addsuccessful.description"));
-			FacesContext.getCurrentInstance().addMessage(null, message);
+		if(!transactionBean.getDateIns().isBefore(selectedAccountBean.getDateIns()))
+		{
+			AccountViewBean conto = accountViewConverter.serviceToView(
+					accountService.addTransaction(transactionViewConverter.viewToService(transactionBean)));
+			if(conto != null && conto.getClient().equals(selectedAccountBean.getClient())) {
+				updateTransactions();
+				transactionBean = new TransactionViewBean();
+				FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, 
+						messages.getString("transaction.addsuccessful.message"),
+						messages.getString("transaction.addsuccessful.description"));
+				FacesContext.getCurrentInstance().addMessage(null, message);
+			} else {
+				logger.info("Failed to add conto");
+				FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+						messages.getString("transaction.addfailed.message"),
+						messages.getString("transaction.addfailed.description"));
+				FacesContext.getCurrentInstance().addMessage(null, message);
+			}
 		} else {
-			logger.info("Failed to add conto");
+			logger.info("Invalid transaction date");
 			FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-					messages.getString("transaction.addfailed.message"),
-					messages.getString("transaction.addfailed.description"));
+					messages.getString("transaction.invalidDate.message"),
+					messages.getString("transaction.invalidDate.description"));
 			FacesContext.getCurrentInstance().addMessage(null, message);
 		}
+			
 		return "/secured/transactions";
 	}
 	
