@@ -71,4 +71,22 @@ public class AccountService{
 		balance = a.getBalanceToDate(date);
 		return balance;
 	}
+
+	public BigDecimal getMeanBalanceToDate(AccountServiceBean account, LocalDate date) {
+		AccountServiceBean a = accountManager.findById(account.getId());
+		a.setTransactionList(transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet()));
+		return a.getMeanBalanceToDate(date);
+	}
+
+	public Integer getDepositCountToDate(AccountServiceBean account, LocalDate date) {
+		AccountServiceBean a = accountManager.findById(account.getId());
+		a.setTransactionList(transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet()));
+		return a.getDepositCount(date);
+	}
+
+	public Integer getWithdrawalCountToDate(AccountServiceBean account, LocalDate date) {
+		AccountServiceBean a = accountManager.findById(account.getId());
+		a.setTransactionList(transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet()));
+		return a.getWithdrawalCount(date);
+	}
 }

@@ -33,7 +33,7 @@ html, body {
 	margin: auto;
 }
 
-#navbar button{
+#navbar button {
 	border: none;
 }
 </style>
@@ -71,38 +71,41 @@ html, body {
 					<h:panelGrid columns="3" cellpadding="2">
 						<h:outputLabel for="dateinput" style="font-weight: bold"
 							value="#{msg['transaction.creationDate']}" />
-						<p:datePicker id="dateinput" pattern="dd-MM-yyyy"
+						<p:datePicker id="dateinput" pattern="yyyy-MM-dd"
 							value="#{balanceController.selectedDate}" required="true"
-							mindate="#{balanceController.selectedAccountBean.dateIns}">
+							mindate="#{balanceController.minDate}">
 						</p:datePicker>
 
 						<p:commandButton update="balanceErrMessages"
 							action="#{balanceController.updateValuesToDate}"
-							value="#{msg['balance.check.button']}" validateClient="true"
+							value="#{msg['balance.update.button']}" validateClient="true"
 							ajax="false" />
 					</h:panelGrid>
 				</div>
 
 				<h:panelGrid columns="2" cellpadding="2">
 					<h:outputLabel for="balanceText" style="font-weight: bold"
-						value="#{msg['account.balance.toDate']}" />
-					<h:outputText id="balanceText"
-						value="#{balanceController.balance}" />
-					
+						value="#{msg['balance.todate']}" />
+					<h:outputText id="balanceText" value="#{balanceController.balance}">
+						<f:convertNumber type="currency" />
+					</h:outputText>
+
+					<h:outputLabel for="meanBalanceText" style="font-weight: bold"
+						value="#{msg['balance.mean.todate']}" />
+					<h:outputText id="meanBalanceText"
+						value="#{balanceController.meanBalance}">
+						<f:convertNumber type="currency" />
+					</h:outputText>
+
 					<h:outputLabel for="depositText" style="font-weight: bold"
-						value="#{msg['account.balance.toDate']}" />
+						value="#{msg['deposits.todate']}" />
 					<h:outputText id="depositText"
 						value="#{balanceController.deposits}" />
-					
+
 					<h:outputLabel for="withdrawalText" style="font-weight: bold"
-						value="#{msg['account.balance.toDate']}" />
+						value="#{msg['withdrawals.todate']}" />
 					<h:outputText id="withdrawalText"
 						value="#{balanceController.withdrawals}" />
-					
-					<h:outputLabel for="meanBalanceText" style="font-weight: bold"
-						value="#{msg['account.balance.toDate']}" />
-					<h:outputText id="meanBalanceText"
-						value="#{balanceController.meanBalance}" />
 				</h:panelGrid>
 			</p:panel>
 		</h:form>

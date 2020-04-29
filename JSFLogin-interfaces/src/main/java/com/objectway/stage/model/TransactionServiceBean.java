@@ -27,6 +27,11 @@ public class TransactionServiceBean {
 		this(deposit, importo);
 		this.account = account;
 	}
+
+	public TransactionServiceBean(boolean deposit, BigDecimal importo, LocalDate dateIns, AccountServiceBean account) {
+		this(deposit, importo, account);
+		this.dateIns = dateIns;
+	}
 	
 	public Long getId() {
 		return id;

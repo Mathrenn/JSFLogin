@@ -3,7 +3,9 @@ package com.objectway.stage.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AccountServiceBean {
 	private Long id;
@@ -89,17 +91,26 @@ public class AccountServiceBean {
 		return saldo;
 	}
 
-	public boolean equals(AccountServiceBean other) {
-		return this.id == other.getId() && 
-				this.client.equals(other.getClient());
-	}
+	public BigDecimal getMeanBalanceToDate(LocalDate date) {
+		BigDecimal saldo = new BigDecimal(0.0);
 
-	public String toString() {
-		return "Conto "+ getId() 
-		+ "\nData Apertura: "+getDateIns()
-		+ "\nSaldo: "+getBalance()
-		+ "\nCliente:\n"+getClient()
-		+ "\nLista Movimenti: "+getTransactionList();
+		if(!getTransactionList().isEmpty()) {
+			// get list of different days
+			// before the given date
+			List<LocalDate> days = getTransactionList()
+					.stream()
+					.map(t -> t.getDateIns())
+					.filter(d -> !d.isAfter(date))
+					.distinct()
+					.collect(Collectors.toList());
+
+			for(LocalDate day: days) {
+				saldo = saldo.add(getBalanceToDate(day));
+			}
+
+			return saldo.divide(new BigDecimal(days.size())).setScale(2);
+		}
+		return saldo;
 	}
 
 	public int getDepositCount(LocalDate date) {
@@ -116,5 +127,18 @@ public class AccountServiceBean {
 				.filter(t -> !t.getDateIns().isAfter(date))
 				.filter(t -> !t.isDeposit())
 				.count();
+	}
+
+	public boolean equals(AccountServiceBean other) {
+		return this.id == other.getId() && 
+				this.client.equals(other.getClient());
+	}
+
+	public String toString() {
+		return "Conto "+ getId() 
+		+ "\nData Apertura: "+getDateIns()
+		+ "\nSaldo: "+getBalance()
+		+ "\nCliente:\n"+getClient()
+		+ "\nLista Movimenti: "+getTransactionList();
 	}
 }
