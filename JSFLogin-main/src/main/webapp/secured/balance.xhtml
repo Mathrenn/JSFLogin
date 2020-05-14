@@ -17,8 +17,14 @@ html, body {
 }
 
 #content {
-	display: flex;
-	padding: 10%;
+	padding-top: 5%;
+	padding-left: 20%;
+	padding-right: 20%;
+}
+
+#content .ui-panel {
+	margin: 1em;
+	margin-bottom: 2em;
 }
 
 .ui-panel {
@@ -29,7 +35,7 @@ html, body {
 	text-align: center;
 }
 
-#balance {
+#balanceForm #meanBalanceForm {
 	margin: auto;
 }
 
@@ -42,10 +48,6 @@ html, body {
 <f:event listener="#{loginController.checkLogin}" type="preRenderView" />
 
 <h:body>
-	<p:messages id="balanceErrMessages">
-		<p:autoUpdate />
-	</p:messages>
-
 	<div id="navbar">
 		<h:form>
 			<p:toolbar id="toolbar">
@@ -64,9 +66,13 @@ html, body {
 		</h:form>
 	</div>
 
+	<p:messages id="balanceErrMessages">
+		<p:autoUpdate />
+	</p:messages>
+
 	<div id="content">
-		<h:form id="balance">
-			<p:panel header="#{msg['chooseDate']}">
+		<p:panel header="#{msg['balance.panel']}">
+			<h:form id="balanceForm">
 				<div>
 					<h:panelGrid columns="3" cellpadding="2">
 						<h:outputLabel for="dateinput" style="font-weight: bold"
@@ -78,18 +84,58 @@ html, body {
 
 						<p:commandButton update="balanceErrMessages"
 							action="#{balanceController.updateValuesToDate}"
-							value="#{msg['balance.update.button']}" validateClient="true"
+							value="#{msg['balance.button']}" validateClient="true"
 							ajax="false" />
 					</h:panelGrid>
 				</div>
 
 				<h:panelGrid columns="2" cellpadding="2">
 					<h:outputLabel for="balanceText" style="font-weight: bold"
-						value="#{msg['balance.todate']}" />
+						value="#{msg['account.balance']}" />
 					<h:outputText id="balanceText" value="#{balanceController.balance}">
-						<f:convertNumber type="currency" />
+						<f:convertNumber type="currency" currencySymbol="€" />
 					</h:outputText>
 
+					<h:outputLabel for="depositText" style="font-weight: bold"
+						value="#{msg['deposits']}" />
+					<h:outputText id="depositText"
+						value="#{balanceController.deposits}" />
+
+					<h:outputLabel for="withdrawalText" style="font-weight: bold"
+						value="#{msg['withdrawals']}" />
+					<h:outputText id="withdrawalText"
+						value="#{balanceController.withdrawals}" />
+				</h:panelGrid>
+			</h:form>
+		</p:panel>
+		
+		<br/>
+
+		<p:panel header="#{msg['balance.panel.mean']}">
+			<h:form id="meanBalanceForm">
+				<div>
+					<h:panelGrid columns="5" cellpadding="2">
+						<h:outputLabel for="startdateinput" style="font-weight: bold"
+							value="#{msg['transaction.startDate']}" />
+						<p:datePicker id="startdateinput" pattern="yyyy-MM-dd"
+							value="#{balanceController.startDate}" required="true"
+							mindate="#{balanceController.minDate}">
+						</p:datePicker>
+
+						<h:outputLabel for="enddateinput" style="font-weight: bold"
+							value="#{msg['transaction.endDate']}" />
+						<p:datePicker id="enddateinput" pattern="yyyy-MM-dd"
+							value="#{balanceController.endDate}" required="true"
+							mindate="#{balanceController.minDate}">
+						</p:datePicker>
+					<p:commandButton update="balanceErrMessages"
+						action="#{balanceController.getMeanBalanceBetweenDates}"
+						value="#{msg['balance.button']}" validateClient="true"
+						ajax="false" />
+					</h:panelGrid>
+				</div>
+
+				<h:panelGrid columns="2" cellpadding="2">
 					<h:outputLabel for="meanBalanceText" style="font-weight: bold"
 						value="#{msg['balance.mean.todate']}" />
 					<h:outputText id="meanBalanceText"
@@ -97,18 +143,19 @@ html, body {
 						<f:convertNumber type="currency" />
 					</h:outputText>
 
-					<h:outputLabel for="depositText" style="font-weight: bold"
-						value="#{msg['deposits.todate']}" />
-					<h:outputText id="depositText"
-						value="#{balanceController.deposits}" />
+					<h:outputLabel for="meanDepositText" style="font-weight: bold"
+						value="#{msg['deposits']}" />
+					<h:outputText id="meanDepositText"
+						value="#{balanceController.meanDeposits}" />
 
-					<h:outputLabel for="withdrawalText" style="font-weight: bold"
-						value="#{msg['withdrawals.todate']}" />
-					<h:outputText id="withdrawalText"
-						value="#{balanceController.withdrawals}" />
+					<h:outputLabel for="meanWithdrawalText" style="font-weight: bold"
+						value="#{msg['withdrawals']}" />
+					<h:outputText id="meanWithdrawalText"
+						value="#{balanceController.meanWithdrawals}" />
 				</h:panelGrid>
-			</p:panel>
-		</h:form>
+			</h:form>
+		</p:panel>
+
 	</div>
 </h:body>
 </html>

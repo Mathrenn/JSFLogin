@@ -1,7 +1,9 @@
 package com.objectway.stage.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import com.objectway.stage.manager.AccountManager;
 import com.objectway.stage.manager.TransactionsManager;
-import com.objectway.stage.model.ClientServiceBean;
 import com.objectway.stage.model.AccountServiceBean;
+import com.objectway.stage.model.ClientServiceBean;
 import com.objectway.stage.model.TransactionServiceBean;
 
 @Component
@@ -65,28 +67,163 @@ public class AccountService{
 	}
 
 	public BigDecimal getBalanceToDate(AccountServiceBean account, LocalDate date) {
-		AccountServiceBean a = accountManager.findById(account.getId());
-		a.setTransactionList(transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet()));
+		return getBalanceToDate(
+				transactionsManager.findByAccountAndDate(account, date),
+				date);
+	}
+
+	public BigDecimal getBalanceToDate(List<TransactionServiceBean> transactions, LocalDate date) {
 		BigDecimal balance = new BigDecimal(0.0);
-		balance = a.getBalanceToDate(date);
+		for(TransactionServiceBean m: transactions) {
+			if(!m.getDateIns().isAfter(date)) {
+				if(m.isDeposit()) {
+					balance = balance.add(m.getAmount());
+				} else {
+					balance = balance.subtract(m.getAmount());
+				}
+			}
+		}
 		return balance;
 	}
-
+	
 	public BigDecimal getMeanBalanceToDate(AccountServiceBean account, LocalDate date) {
-		AccountServiceBean a = accountManager.findById(account.getId());
-		a.setTransactionList(transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet()));
-		return a.getMeanBalanceToDate(date);
+		return getMeanBalanceToDate(
+				transactionsManager.findByAccountAndDate(account, date),
+				date);
 	}
 
+	public BigDecimal getMeanBalanceToDate(AccountServiceBean account, LocalDate from, LocalDate to) {
+		if(!from.isBefore(account.getDateIns()) && !to.isBefore(account.getDateIns())) {
+			if(from.isBefore(to)) {
+				return getMeanBalanceToDate(
+						transactionsManager.findByAccountAndDate(account, to),
+						from,
+						to);
+			} else {
+				return getMeanBalanceToDate(
+						transactionsManager.findByAccountAndDate(account, from),
+						to,
+						from);
+			}
+		} else {
+			return new BigDecimal(0.0).setScale(2);
+		}
+	}
+
+	private BigDecimal getMeanBalanceToDate(List<TransactionServiceBean> transactions, LocalDate date) {
+		BigDecimal saldo = new BigDecimal(0.0).setScale(2);
+
+		if(!transactions.isEmpty()) {
+			// get list of different days
+			// up to the given date
+			List<LocalDate> days = transactions
+					.stream()
+					.map(t -> t.getDateIns())
+					.filter(d -> !d.isAfter(date))
+					.distinct()
+					.collect(Collectors.toList());
+
+			if(!days.isEmpty()) {
+				for(LocalDate day: days) {
+					saldo = saldo.add(getBalanceToDate(transactions, day));
+				}
+
+				return saldo.divide(new BigDecimal(days.size())).setScale(2);
+			}
+		}
+		return saldo;
+	}
+
+	private BigDecimal getMeanBalanceToDate(List<TransactionServiceBean> transactions, LocalDate from, LocalDate to) {
+		BigDecimal saldo = new BigDecimal(0.0).setScale(2);
+
+		if(!transactions.isEmpty()) {
+			// get list of different days
+			// up to the given date
+			List<LocalDate> days = new ArrayList<>();
+			if(from.isBefore(to)) {
+				days = transactions
+						.stream()
+						.map(t -> t.getDateIns())
+						.filter(d -> !d.isBefore(from) && !d.isAfter(to))
+						.distinct()
+						.collect(Collectors.toList());
+			} else {
+				days = transactions
+						.stream()
+						.map(t -> t.getDateIns())
+						.filter(d -> !d.isBefore(to) && !d.isAfter(from))
+						.distinct()
+						.collect(Collectors.toList());
+			}
+
+			if(!days.isEmpty()) {
+				for(LocalDate day: days) {
+					saldo = saldo.add(getBalanceToDate(transactions, day));
+				}
+				return saldo.divide(new BigDecimal(days.size()), 2, RoundingMode.HALF_EVEN);
+			}
+		}
+		return saldo;
+	}
+	
 	public Integer getDepositCountToDate(AccountServiceBean account, LocalDate date) {
-		AccountServiceBean a = accountManager.findById(account.getId());
-		a.setTransactionList(transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet()));
-		return a.getDepositCount(date);
+		return (int) transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet())
+				.stream()
+				.filter(t -> t.isDeposit() && !t.getDateIns().isAfter(date))
+				.count();
 	}
 
 	public Integer getWithdrawalCountToDate(AccountServiceBean account, LocalDate date) {
-		AccountServiceBean a = accountManager.findById(account.getId());
-		a.setTransactionList(transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet()));
-		return a.getWithdrawalCount(date);
+		return (int) transactionsManager.findByAccountAndDate(account, date).stream().collect(Collectors.toSet())
+				.stream()
+				.filter(t -> !t.isDeposit() && !t.getDateIns().isAfter(date))
+				.count();
 	}
+
+	public Integer getDepositCountBetweenDates(AccountServiceBean account, LocalDate from, LocalDate to) {
+		if(!from.isBefore(account.getDateIns()) && !to.isBefore(account.getDateIns())) {
+			if(from.isBefore(to)) {
+				return (int) transactionsManager.findByAccountAndDate(account, to).stream().collect(Collectors.toSet())
+						.stream()
+						.filter(t -> t.isDeposit() && !t.getDateIns().isBefore(from) && !t.getDateIns().isAfter(to))
+						.count();
+			} else {
+				return (int) transactionsManager.findByAccountAndDate(account, to).stream().collect(Collectors.toSet())
+						.stream()
+						.filter(t -> t.isDeposit() && !t.getDateIns().isBefore(to) && !t.getDateIns().isAfter(from))
+						.count();
+				
+			}
+		} else {
+			return 0;
+		}
+	}
+
+	public Integer getWithdrawalCountBetweenDates(AccountServiceBean account, LocalDate from, LocalDate to) {
+		if(!from.isBefore(account.getDateIns()) && !to.isBefore(account.getDateIns())) {
+			if(from.isBefore(to)) {
+			return (int) transactionsManager.findByAccountAndDate(account, to).stream().collect(Collectors.toSet())
+					.stream()
+					.filter(t -> !t.isDeposit() && !t.getDateIns().isBefore(from) && !t.getDateIns().isAfter(to))
+					.count();
+			} else {
+				return (int) transactionsManager.findByAccountAndDate(account, to).stream().collect(Collectors.toSet())
+						.stream()
+						.filter(t -> !t.isDeposit() && !t.getDateIns().isBefore(to) && !t.getDateIns().isAfter(from))
+						.count();
+			}
+		} else {
+			return 0;
+		}
+	}
+
+	public void orderDates(LocalDate from, LocalDate to) {
+		if(from.isAfter(to)) {
+			LocalDate temp = from;
+			from = to;
+			to = temp;
+		}
+	}
+	
 }

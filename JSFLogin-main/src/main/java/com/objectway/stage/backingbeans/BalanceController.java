@@ -29,6 +29,8 @@ public class BalanceController {
 	private static final ResourceBundle messages = ResourceBundle.getBundle("messages/messages");
 
 	private Date selectedDate;
+	private Date startDate;
+	private Date endDate;
 
 	@ManagedProperty("#{accountService}")
 	private AccountService accountService;
@@ -39,14 +41,20 @@ public class BalanceController {
 	private BigDecimal meanBalance;
 	private int deposits;
 	private int withdrawals;
+	private int meanDeposits;
+	private int meanWithdrawals;
 
 	public BalanceController() {
 		super();
 		selectedDate = new Date();
+		startDate = new Date();
+		endDate = new Date();
 		balance = new BigDecimal(0.0);
 		meanBalance = new BigDecimal(0.0);
 		deposits = 0;
 		withdrawals = 0;
+		meanDeposits = 0;
+		meanWithdrawals = 0;
 	}
 
 	// Getters and setters
@@ -56,6 +64,22 @@ public class BalanceController {
 
 	public void setSelectedDate(Date selectedDate) {
 		this.selectedDate = selectedDate;
+	}
+	
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 
 	public Date getMinDate() {
@@ -101,6 +125,22 @@ public class BalanceController {
 	public void setWithdrawals(int withdrawals) {
 		this.withdrawals = withdrawals;
 	}
+	
+	public int getMeanDeposits() {
+		return meanDeposits;
+	}
+
+	public void setMeanDeposits(int meanDeposits) {
+		this.meanDeposits = meanDeposits;
+	}
+
+	public int getMeanWithdrawals() {
+		return meanWithdrawals;
+	}
+
+	public void setMeanWithdrawals(int meanWithdrawals) {
+		this.meanWithdrawals = meanWithdrawals;
+	}
 
 	public BigDecimal getMeanBalance() {
 		return meanBalance;
@@ -119,7 +159,6 @@ public class BalanceController {
 			setBalance(getUpdatedBalance(selectedLocalDate));
 			setDeposits(getUpdatedDeposits(selectedLocalDate));
 			setWithdrawals(getUpdatedWithdrawals(selectedLocalDate));
-			setMeanBalance(getUpdatedMeanBalance(selectedLocalDate));
 			FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, 
 					messages.getString("balance.update.successful.message"),
 					messages.getString("balance.update.successful.description"));
@@ -132,6 +171,36 @@ public class BalanceController {
 		}
 	}
 
+	public void getMeanBalanceBetweenDates() {
+		if(!startDate.before(getMinDate()) && !endDate.before(getMinDate())) {
+			LocalDate startLocalDate = LocalDate.now();
+			LocalDate endLocalDate = LocalDate.now();
+
+			if(startDate.before(endDate)) {
+				startLocalDate = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				endLocalDate = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			} else {
+				startLocalDate = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				endLocalDate = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			}
+			
+			setMeanBalance(getUpdatedMeanBalance(
+					startLocalDate,
+					endLocalDate));
+			setMeanDeposits(getDepositsBetweenDates(startLocalDate, endLocalDate));
+			setMeanWithdrawals(getWithdrawalsBetweenDates(startLocalDate, endLocalDate));
+			FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, 
+					messages.getString("balance.update.successful.message"),
+					messages.getString("balance.update.successful.description"));
+			FacesContext.getCurrentInstance().addMessage(null, message);
+		} else {
+			FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+					messages.getString("balance.date.invalid.message"),
+					messages.getString("balance.date.invalid.description"));
+			FacesContext.getCurrentInstance().addMessage(null, message);
+		}
+	}
+	
 	public BigDecimal getUpdatedBalance(LocalDate date) {
 		logger.info("Started BalanceController.getUpdatedBalance()");
 		return accountService.getBalanceToDate(
@@ -139,11 +208,12 @@ public class BalanceController {
 				date).setScale(2);
 	}
 
-	public BigDecimal getUpdatedMeanBalance(LocalDate date) {
+	public BigDecimal getUpdatedMeanBalance(LocalDate from, LocalDate to) {
 		logger.info("Started BalanceController.getUpdatedMeanBalance()");
 		return accountService.getMeanBalanceToDate(
 				accountViewConverter.viewToService(selectedAccountBean), 
-				date).setScale(2);
+				from,
+				to).setScale(2);
 	}
 
 	public Integer getUpdatedDeposits(LocalDate date) {
@@ -156,20 +226,38 @@ public class BalanceController {
 		return accountService.getWithdrawalCountToDate(accountViewConverter.viewToService(selectedAccountBean), date);
 	}
 
+	public Integer getDepositsBetweenDates(LocalDate from, LocalDate to) {
+		logger.info("Started BalanceController.getUpdatedDeposits()");
+		return accountService.getDepositCountBetweenDates(accountViewConverter.viewToService(selectedAccountBean), from, to);
+	}
+
+	public Integer getWithdrawalsBetweenDates(LocalDate from, LocalDate to) {
+		logger.info("Started BalanceController.getUpdatedWithdrawals()");
+		return accountService.getWithdrawalCountBetweenDates(accountViewConverter.viewToService(selectedAccountBean), from, to);
+	}
+	
 	public String homeButton() {
 		selectedDate = new Date();
+		startDate = new Date();
+		endDate = new Date();
 		balance = new BigDecimal(0.0);
 		deposits = 0;
 		withdrawals = 0;
+		meanDeposits = 0;
+		meanWithdrawals = 0;
 		meanBalance = new BigDecimal(0.0);
 		return "/secured/welcome?faces-redirect=true";
 	}
 
 	public String backButton() {
 		selectedDate = new Date();
+		startDate = new Date();
+		endDate = new Date();
 		balance = new BigDecimal(0.0);
 		deposits = 0;
 		withdrawals = 0;
+		meanDeposits = 0;
+		meanWithdrawals = 0;
 		meanBalance = new BigDecimal(0.0);
 		return "/secured/client?faces-redirect=true";
 	}

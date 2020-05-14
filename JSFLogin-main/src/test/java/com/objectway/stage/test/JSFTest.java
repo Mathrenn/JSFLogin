@@ -127,10 +127,12 @@ public class JSFTest extends AbstractTransactionalJUnit4SpringContextTests{
 		assertTrue(ccsb.equals(conto));
 		ccsb.setTransactionList(accountService.findAllTransactionsByAccount(ccsb).stream().collect(Collectors.toSet()));
 		assertFalse(ccsb.getTransactionList().isEmpty());
-		assertTrue(ccsb.getBalanceToDate(LocalDate.now()).compareTo(BigDecimal.valueOf(100.0))==0);
-		assertTrue(ccsb.getDepositCount(LocalDate.now())==1);
-		assertTrue(ccsb.getWithdrawalCount(LocalDate.now())==0);
+		assertTrue(accountService.getBalanceToDate(ccsb, LocalDate.now()).compareTo(BigDecimal.valueOf(100.0))==0);
 		assertTrue(accountService.getMeanBalanceToDate(ccsb, LocalDate.now()).compareTo(BigDecimal.valueOf(100.0))==0);
+		assertTrue(accountService.getMeanBalanceToDate(ccsb, LocalDate.now(), LocalDate.now().plusDays(5)).compareTo(BigDecimal.valueOf(100.0))==0);
+		
+		assertTrue(accountService.getDepositCountToDate(ccsb, LocalDate.now())==1);
+		assertTrue(accountService.getWithdrawalCountToDate(ccsb, LocalDate.now())==0);
 
 		ccsb = accountService.addTransaction(new TransactionServiceBean(false, new BigDecimal(50.0), LocalDate.now().plusDays(1), conto));
 		ccsb = accountService.addTransaction(new TransactionServiceBean(true, new BigDecimal(100.0), LocalDate.now().plusDays(1), conto));
@@ -141,6 +143,9 @@ public class JSFTest extends AbstractTransactionalJUnit4SpringContextTests{
 
 		assertTrue(accountService.getMeanBalanceToDate(ccsb, LocalDate.now()).compareTo(BigDecimal.valueOf(100.0))==0);
 		assertTrue(accountService.getMeanBalanceToDate(ccsb, LocalDate.now().plusDays(1)).compareTo(BigDecimal.valueOf(125.0))==0);
+		assertTrue(accountService.getMeanBalanceToDate(ccsb, LocalDate.now().plusDays(1), LocalDate.now()).compareTo(BigDecimal.valueOf(125.0))==0);
+		assertTrue(accountService.getMeanBalanceToDate(ccsb, LocalDate.now().plusDays(1), LocalDate.now().plusDays(5)).compareTo(BigDecimal.valueOf(150.0))==0);
+
 		assertTrue(accountService.getDepositCountToDate(ccsb, LocalDate.now())==1);
 		assertTrue(accountService.getDepositCountToDate(ccsb, LocalDate.now().plusDays(1))==2);
 		assertTrue(accountService.getWithdrawalCountToDate(ccsb, LocalDate.now())==0);

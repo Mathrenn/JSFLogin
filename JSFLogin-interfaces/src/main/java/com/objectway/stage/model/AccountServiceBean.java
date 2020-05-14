@@ -3,9 +3,7 @@ package com.objectway.stage.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class AccountServiceBean {
 	private Long id;
@@ -75,58 +73,6 @@ public class AccountServiceBean {
 
 	public void addTransaction(TransactionServiceBean transaction) {
 		transactionList.add(transaction);
-	}
-
-	public BigDecimal getBalanceToDate(LocalDate date) {
-		BigDecimal saldo = new BigDecimal(0.0);
-		for(TransactionServiceBean m: getTransactionList()) {
-			if(!m.getDateIns().isAfter(date)) {
-				if(m.isDeposit()) {
-					saldo = saldo.add(m.getAmount());
-				} else {
-					saldo = saldo.subtract(m.getAmount());
-				}
-			}
-		}
-		return saldo;
-	}
-
-	public BigDecimal getMeanBalanceToDate(LocalDate date) {
-		BigDecimal saldo = new BigDecimal(0.0);
-
-		if(!getTransactionList().isEmpty()) {
-			// get list of different days
-			// before the given date
-			List<LocalDate> days = getTransactionList()
-					.stream()
-					.map(t -> t.getDateIns())
-					.filter(d -> !d.isAfter(date))
-					.distinct()
-					.collect(Collectors.toList());
-
-			for(LocalDate day: days) {
-				saldo = saldo.add(getBalanceToDate(day));
-			}
-
-			return saldo.divide(new BigDecimal(days.size())).setScale(2);
-		}
-		return saldo;
-	}
-
-	public int getDepositCount(LocalDate date) {
-		return (int) getTransactionList()
-				.stream()
-				.filter(t -> !t.getDateIns().isAfter(date))
-				.filter(t -> t.isDeposit())
-				.count();
-	}
-
-	public int getWithdrawalCount(LocalDate date) {
-		return (int) getTransactionList()
-				.stream()
-				.filter(t -> !t.getDateIns().isAfter(date))
-				.filter(t -> !t.isDeposit())
-				.count();
 	}
 
 	public boolean equals(AccountServiceBean other) {

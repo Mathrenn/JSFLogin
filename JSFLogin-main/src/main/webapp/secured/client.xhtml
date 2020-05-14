@@ -23,11 +23,14 @@ body {
 }
 
 #content {
-	padding: 1em;
+	padding-top: 5%;
+	padding-left: 20%;
+	padding-right: 20%;
 }
 
 #content .ui-panel {
 	margin: 1em;
+	margin-bottom: 2em;
 }
 </style>
 </h:head>
@@ -96,7 +99,7 @@ body {
 					<p:column headerText="#{msg['account.balance']}"
 						style="text-align: center">
 						<h:outputText value="#{account.balance}">
-							<f:convertNumber type="currency" />
+							<f:convertNumber type="currency" currencySymbol="€"/>
 						</h:outputText>
 					</p:column>
 					<p:column headerText="#{msg['account.creationDate']}"
@@ -107,7 +110,7 @@ body {
 						style="text-align: center">
 						<p:panelGrid id="buttonrow" columns="2" layout="grid">
 							<p:commandButton action="transactions?faces-redirect=true"
-								value="#{msg['movement.list.button']}">
+								value="#{msg['transaction.list.button']}">
 								<f:setPropertyActionListener value="#{account}"
 									target="#{clientController.selectedAccountBean}" />
 							</p:commandButton>

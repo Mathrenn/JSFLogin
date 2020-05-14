@@ -90,7 +90,9 @@ body {
 						<h:outputText value="#{transaction.transactionType}" />
 					</p:column>
 					<p:column headerText="#{msg['transaction.amount']}">
-						<h:outputText value="#{transaction.amount}" />
+						<h:outputText value="#{transaction.amount}" >
+							<f:convertNumber type="currency" currencySymbol="€" />
+						</h:outputText>
 					</p:column>
 					<p:column headerText="#{msg['transaction.creationDate']}">
 						<h:outputText id="date" value="#{transaction.dateIns}"/>
